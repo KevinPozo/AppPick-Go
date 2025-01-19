@@ -1,6 +1,7 @@
 package com.example.appeatskfcburguerking.Main.KfcStore
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -105,24 +106,19 @@ fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoV
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(Color.White.copy(alpha = 0.95f))
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.background_kfc),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f)
-            )
-            Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text = "Elige tus complementos favoritos, Recuerda Seleccionar el Tipo de Presa:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(8.dp)
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 LazyColumn(
-                    modifier = Modifier.weight(1f).padding(8.dp)
+                    modifier = Modifier.weight(1f).padding(bottom = 8.dp)
                 ) {
                     groupedOptions.forEach { (tipo, opcionesPorTipo) ->
                         item {
@@ -140,18 +136,22 @@ fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoV
                                     TipoDeOpcion.SABORJUGO -> "Selección de Sabor de Jugo:"
                                     else -> "Otros"
                                 },
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp)
+                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                                modifier = Modifier.padding(vertical = 8.dp)
                             )
 
                             Column {
                                 opcionesPorTipo.forEach { opcion ->
                                     Card(
-                                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
-                                            Text(opcion.nombre, fontWeight = FontWeight.Bold)
+                                            Text(
+                                                text = opcion.nombre,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White
+                                            )
 
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
@@ -173,7 +173,7 @@ fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoV
                                                 )
                                                 Text(
                                                     opcion.nombre,
-                                                    style = MaterialTheme.typography.bodyMedium
+                                                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
                                                 )
                                             }
 
@@ -223,7 +223,6 @@ fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoV
                                                     }
                                                 }
                                             }
-
                                             if (tipo !in listOf(
                                                     TipoDeOpcion.PRESA,
                                                     TipoDeOpcion.SABORBEBIDA,
@@ -263,6 +262,7 @@ fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoV
         }
     }
 }
+
 
 
 

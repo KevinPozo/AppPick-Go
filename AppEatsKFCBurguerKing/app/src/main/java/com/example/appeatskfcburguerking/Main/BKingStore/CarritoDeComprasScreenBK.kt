@@ -42,7 +42,7 @@ fun CarritoDeComprasScreenBK(carritoViewModelBK: CarritoViewModelBK, navControll
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Blue)
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFFDA7D0B))
             )
         },
         bottomBar = {
@@ -57,7 +57,7 @@ fun CarritoDeComprasScreenBK(carritoViewModelBK: CarritoViewModelBK, navControll
                         navController.navigate("realizarpagocarritobk")
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
                     Text("Realizar Pago", color = Color.White)
                 }

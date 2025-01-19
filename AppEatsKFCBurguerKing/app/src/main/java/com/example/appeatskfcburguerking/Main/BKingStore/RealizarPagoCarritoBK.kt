@@ -48,11 +48,44 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
     val context = LocalContext.current
     val activity = context as? Activity
     var mensajeError by remember { mutableStateOf("") }
-    var mostrarDialogoExito by remember { mutableStateOf(false) }
     var mostrarDialogoConfirmacion by remember { mutableStateOf(false) }
     var horaRetiro by remember { mutableStateOf("") }
+    val onHoraRetiroValueChange = { input: String ->
+        val newInput = input.filter { it.isDigit() }
+        horaRetiro = when {
+            newInput.length <= 2 -> {
+                newInput
+            }
+            newInput.length in 3..4 -> {
+                "${newInput.substring(0, 2)}:${newInput.substring(2)}"
+            }
+            else -> {
+                "${newInput.substring(0, 2)}:${newInput.substring(2, 4)}"
+            }
+        }
+    }
+
+    val onFechaValueChange = { input: String ->
+        val newInput = input.filter { it.isDigit() }
+        fechaExpiracion = when {
+            newInput.length <= 2 -> {
+                newInput
+            }
+            newInput.length in 3..4 -> {
+                "${newInput.substring(0, 2)}/${newInput.substring(2)}"
+            }
+            else -> {
+                "${newInput.substring(0, 2)}/${newInput.substring(2, 4)}"
+            }
+        }
+    }
 
     val camposCompletos = nombre.isNotEmpty() && dni.isNotEmpty() && telefono.isNotEmpty() && correo.isNotEmpty()
+    val correoValido = correo.isNotEmpty() && correo.matches(Regex("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.)+[A-Za-z]{2,6}$"))
+    val dniValido = dni.matches(Regex("^[0-9]{10}$"))
+    val telefonoValido = telefono.matches(Regex("^0[0-9]{10}$"))
+    val tarjetaValida = tarjetaNumero.matches(Regex("^[0-9]{13,19}$"))
+    val cvvValido = cvv.matches(Regex("^[0-9]{3,4}$"))
 
     Scaffold(
         topBar = {
@@ -70,7 +103,7 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Blue)
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFFDA7D0B))
             )
         },
         bottomBar = {
@@ -82,15 +115,30 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
             ) {
                 Button(
                     onClick = {
-                        if (camposCompletos) {
+                        if (camposCompletos && correoValido && dniValido) {
                             mostrarDialogoConfirmacion = true
                         } else {
-                            mensajeError = "Por favor, complete todos los campos antes de confirmar el pago."
+                            mensajeError = "Por favor, complete todos los campos correctamente."
+                            if (!correoValido) {
+                                mensajeError += "\nCorreo electrónico no válido."
+                            }
+                            if (!dniValido) {
+                                mensajeError += "\nDNI no válido. Debe tener 10 dígitos numéricos."
+                            }
+                            if(!telefonoValido){
+                                mensajeError += "\nTelefono no válido. Debe tener 10 dígitos numéricos."
+                            }
+                            if(!tarjetaValida){
+                                mensajeError += "\nTarjeta no válido."
+                            }
+                            if(!cvvValido){
+                                mensajeError += "\nCVV no válido."
+                            }
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = camposCompletos,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
                     Text("Confirmar Pago", color = Color.White)
                 }
@@ -135,9 +183,10 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
             item {
                 TextField(
                     value = horaRetiro,
-                    onValueChange = { horaRetiro = it },
+                    onValueChange = onHoraRetiroValueChange,
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     label = { Text("Hora de Retiro, HH:MM", color = Color.White) },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
             }
             item {
@@ -172,16 +221,16 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
                         onValueChange = { cvv = it },
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                        label = { Text("CVV (Ultimos 3 dígitos de su tarjeta, parte trasera)",color = Color.White) }
+                        label = { Text("CVV (Últimos 3 dígitos de su tarjeta, parte trasera)", color = Color.White) }
                     )
                 }
                 item {
                     TextField(
                         value = fechaExpiracion,
-                        onValueChange = { fechaExpiracion = it },
+                        onValueChange = onFechaValueChange,
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
-                        label = { Text("MM/YY",color = Color.White) }
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        label = { Text("MM/YY", color = Color.White) }
                     )
                 }
             }
@@ -189,7 +238,7 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
                 if (mensajeError.isNotEmpty()) {
                     Text(
                         text = mensajeError,
-                        color = Color.Blue,
+                        color = Color.Red,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -229,25 +278,19 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
 
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
-                    modifier = Modifier.padding(end = 8.dp)
-                ) {
-                    Text("Sí",color = Color.White)
+                    ) {
+                    Text("Confirmar", color = Color.White)
                 }
             },
             dismissButton = {
                 TextButton(
-                    onClick = {
-                        mostrarDialogoConfirmacion = false
-                    },
+                    onClick = { mostrarDialogoConfirmacion = false },
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
-                    modifier = Modifier.padding(start = 8.dp)
                 ) {
-                    Text("No",color = Color.White)
+                    Text("Cancelar", color = Color.White)
                 }
-            },
-            modifier = Modifier.padding(16.dp)
+            }
         )
-
 
     }
 }

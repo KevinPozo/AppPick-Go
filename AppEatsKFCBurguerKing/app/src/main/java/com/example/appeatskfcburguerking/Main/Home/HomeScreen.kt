@@ -1,6 +1,7 @@
 package com.example.appeatskfcburguerking.Main.Home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -31,14 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.appeatskfcburguerking.R
-
-
 @Composable
 fun HomeScreen(navController: NavController) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Fondo de pantalla
         Image(
             painter = painterResource(id = R.drawable.wallpaperhomescreen),
             contentDescription = "Fondo de pantalla",
@@ -64,6 +63,20 @@ fun HomeScreen(navController: NavController) {
             )
         }
 
+        IconButton(
+            onClick = { navController.navigate("about") },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 16.dp, top = 40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.HelpOutline,
+                contentDescription = "Acerca de",
+                tint = Color.White,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,6 +94,7 @@ fun HomeScreen(navController: NavController) {
                         .clip(CircleShape)
                         .border(3.dp, Color.Black, CircleShape)
                         .padding(1.dp)
+                        .clickable { navController.navigate("tienda_kfc") }
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.kfc_logo),
@@ -90,28 +104,7 @@ fun HomeScreen(navController: NavController) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Button(
-                    onClick = { navController.navigate("tienda_kfc") },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .padding(bottom = 10.dp)
-                        .border(2.dp, Color.Black, RoundedCornerShape(10.dp))
-                        .shadow(10.dp, RoundedCornerShape(12.dp))
-                ) {
-                    Text(
-                        text = "Tienda KFC",
-                        style = TextStyle(
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 18.sp,
-                            color = Color.White
-                        )
-                    )
-                }
+                Spacer(modifier = Modifier.height(40.dp))
 
                 Box(
                     modifier = Modifier
@@ -119,6 +112,7 @@ fun HomeScreen(navController: NavController) {
                         .clip(CircleShape)
                         .border(3.dp, Color.Black, CircleShape)
                         .padding(1.dp)
+                        .clickable { navController.navigate("tienda_brk") }
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.burgerking_logo),
@@ -127,31 +121,11 @@ fun HomeScreen(navController: NavController) {
                         contentScale = ContentScale.Crop
                     )
                 }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Button(
-                    onClick = { navController.navigate("tienda_brk") },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B2ACC)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .padding(bottom = 10.dp)
-                        .border(2.dp, Color.Black, RoundedCornerShape(10.dp))
-                        .shadow(10.dp, RoundedCornerShape(12.dp))
-                ) {
-                    Text(
-                        text = "Tienda Burger King",
-                        style = TextStyle(
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 18.sp,
-                            color = Color.White
-                        )
-                    )
-                }
             }
         }
     }
 }
+
+
+
 

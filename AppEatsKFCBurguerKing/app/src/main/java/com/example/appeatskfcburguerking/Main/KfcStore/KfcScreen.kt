@@ -232,6 +232,8 @@ val productoCombos = listOf(
 fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
     var selectedCategory by remember { mutableStateOf("Combos") }
     var searchQuery by remember { mutableStateOf("") }
+    var cantidad by remember { mutableStateOf(0) }
+    var showSnackbar by remember { mutableStateOf(false) }
 
     val categories = listOf("Festines de Presas", "Presas Solas", "Para Compartir", "Boxes", "Combos")
     val categoryImages = listOf(
@@ -243,11 +245,9 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
     )
 
     val allProductos = productosFestin + productosPresasSolas + productosCompartir + productosBoxes + productoCombos
-
     val filteredProductos = allProductos.filter { producto ->
         producto.categoria == selectedCategory && producto.nombre.contains(searchQuery, ignoreCase = true)
     }
-
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -269,8 +269,7 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
                 },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Red)
             )
-        }
-        ,
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate("cart_screen") },
@@ -284,24 +283,23 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(Color.White.copy(alpha = 0.95f))
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.background_kfc),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f)
-            )
 
             Column(modifier = Modifier.fillMaxSize()) {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    label = { Text("Buscar productos") },
+                    label = { Text("Buscar productos", color = Color.Black) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    textStyle = TextStyle(color = Color.Black),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Black,
+                        cursorColor = Color.Black
+                    )
                 )
 
                 LazyRow(modifier = Modifier.padding(8.dp)) {
@@ -328,7 +326,7 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .align(Alignment.BottomCenter)
-                                        .background(Color.Gray.copy(alpha = 0.8f))
+                                        .background(Color.Gray.copy(alpha = 0.5f))
                                         .padding(vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -342,9 +340,10 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
                         }
                     }
                 }
-
                 LazyColumn(modifier = Modifier.padding(8.dp)) {
                     itemsIndexed(filteredProductos) { index, producto ->
+                        var cantidadProducto by remember { mutableStateOf(0) }
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -368,7 +367,7 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
                                 Spacer(modifier = Modifier.width(16.dp))
 
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(producto.nombre, fontWeight = FontWeight.Bold)
+                                    Text(producto.nombre, fontWeight = FontWeight.Bold, color = Color.White)
                                     Text("Desde $ ${producto.precio}", color = Color.Gray)
                                     Text(
                                         producto.descripcion,
@@ -377,20 +376,22 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    var cantidad by remember { mutableStateOf(0) }
-
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        IconButton(onClick = {
-                                            if (cantidad > 1) cantidad -= 1
-                                        }) {
+                                        IconButton(
+                                            onClick = {
+                                                if (cantidadProducto > 0) {
+                                                    cantidadProducto -= 1
+                                                }
+                                            }
+                                        ) {
                                             Icon(Default.RemoveCircle, contentDescription = "Disminuir cantidad")
                                         }
 
                                         TextField(
-                                            value = cantidad.toString(),
+                                            value = cantidadProducto.toString(),
                                             onValueChange = { newValue ->
-                                                val newCantidad = newValue.toIntOrNull() ?: cantidad
-                                                if (newCantidad >= 1) cantidad = newCantidad
+                                                val newCantidad = newValue.toIntOrNull() ?: cantidadProducto
+                                                if (newCantidad >= 0) cantidadProducto = newCantidad
                                             },
                                             modifier = Modifier.width(50.dp),
                                             textStyle = TextStyle(textAlign = TextAlign.Center),
@@ -398,7 +399,7 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
                                         )
 
                                         IconButton(onClick = {
-                                            cantidad += 1
+                                            cantidadProducto += 1
                                         }) {
                                             Icon(Default.Add, contentDescription = "Aumentar cantidad")
                                         }
@@ -406,12 +407,21 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Button(onClick = {
-                                        val productoConCantidad = producto.copy(cantidad = cantidad)
-                                        pedidoViewModel.agregarProducto(productoConCantidad)
-
-                                        navController.navigate("personalizacion_screen")
-                                    }) {
+                                    Button(
+                                        onClick = {
+                                            if (cantidadProducto == 0) {
+                                                showSnackbar = true
+                                            } else {
+                                                val productoConCantidad = producto.copy(cantidad = cantidadProducto)
+                                                pedidoViewModel.agregarProducto(productoConCantidad)
+                                                navController.navigate("personalizacion_screen")
+                                            }
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color.Red,
+                                            contentColor = Color.White
+                                        )
+                                    ) {
                                         Text("Ordenarlo ¡Ahora!")
                                     }
                                 }
@@ -420,19 +430,20 @@ fun KfcScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
                     }
                 }
 
+
+            }
+
+            if (showSnackbar) {
+                Snackbar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                ) {
+                    Text("Por favor selecciona una cantidad a ordenar", color = Color.Black)
+                }
             }
         }
     }
 }
 
-@Composable
-fun CartIconButton(navController: NavController) {
-    IconButton(onClick = { navController.navigate("cart_screen") }) {
-        Icon(
-            imageVector = Icons.Default.ShoppingCart,
-            contentDescription = "Ir al carrito",
-            tint = Color.White
-        )
-    }
-}
 

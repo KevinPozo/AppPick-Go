@@ -1,5 +1,6 @@
 package com.example.appeatskfcburguerking.Main.BKingStore
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -27,7 +28,7 @@ fun VerResumenPedidoScreenBK(navController: NavController, pedidoViewModelBK: Pe
         topBar = {
             SmallTopAppBar(
                 colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = Color.Blue
+                    containerColor = Color(0xFFDA7D0B)
                 ),
                 title = {
                     Box(
@@ -57,7 +58,7 @@ fun VerResumenPedidoScreenBK(navController: NavController, pedidoViewModelBK: Pe
                         navController.navigate("tienda_brk")
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
 
                 ) {
                     Text("Confirmar Pedido", color = Color.White)
@@ -65,7 +66,11 @@ fun VerResumenPedidoScreenBK(navController: NavController, pedidoViewModelBK: Pe
             }
         }
     ) { padding ->
-
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White.copy(alpha = 0.95f))
+        )
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +84,7 @@ fun VerResumenPedidoScreenBK(navController: NavController, pedidoViewModelBK: Pe
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Productos seleccionadas", style = MaterialTheme.typography.bodyMedium)
+                    Text("Productos seleccionados", style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black))
                 }
             }
 
@@ -110,7 +115,7 @@ fun VerResumenPedidoScreenBK(navController: NavController, pedidoViewModelBK: Pe
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Opciones seleccionadas", style = MaterialTheme.typography.bodyMedium)
+                    Text("Opciones seleccionadas", style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black))
                 }
             }
 
@@ -148,7 +153,7 @@ fun VerResumenPedidoScreenBK(navController: NavController, pedidoViewModelBK: Pe
                 ) {
                     Text(
                         "Total: \$${"%.2f".format(total)}",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
                     )
                 }
             }
@@ -193,15 +198,15 @@ fun ResumenItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(nombre, style = MaterialTheme.typography.bodyMedium)
+                    Text(nombre, style = MaterialTheme.typography.bodyMedium.copy(color = Color.White))
 
                     if (tipo !in listOf(TipoDeOpcion.CARNE, TipoDeOpcion.SABORBEBIDA, TipoDeOpcion.SABORSHAKE)) {
-                        Text("Precio: \$${"%.2f".format(precio)}")
+                        Text("Precio: \$${"%.2f".format(precio)}", color = Color.White)
                     }
                 }
 
                 if (tipo !in listOf(TipoDeOpcion.CARNE, TipoDeOpcion.SABORBEBIDA, TipoDeOpcion.SABORSHAKE)) {
-                    Text(cantidad.toString(), style = MaterialTheme.typography.bodyLarge)
+                    Text(cantidad.toString(), style = MaterialTheme.typography.bodyLarge.copy(color = Color.White))
                 }
             }
         }

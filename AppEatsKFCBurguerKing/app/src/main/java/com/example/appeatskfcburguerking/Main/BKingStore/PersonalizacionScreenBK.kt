@@ -1,6 +1,7 @@
 package com.example.appeatskfcburguerking.Main.BKingStore
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -82,7 +83,7 @@ fun PersonalizacionScreenBK(navController: NavController, pedidoViewModelBK: Ped
                         )
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Blue),
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFFDA7D0B)),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -99,24 +100,18 @@ fun PersonalizacionScreenBK(navController: NavController, pedidoViewModelBK: Ped
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(Color.White.copy(alpha = 0.95f))
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.background_burgerking),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f)
-            )
-            Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Elige tus complementos favoritos, Recuerda Seleccionar el Tipo de Carne:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(8.dp)
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 LazyColumn(
-                    modifier = Modifier.weight(1f).padding(8.dp)
+                    modifier = Modifier.weight(1f).padding(bottom = 8.dp)
                 ) {
                     groupedOptions.forEach { (tipo, opcionesPorTipo) ->
                         item {
@@ -133,8 +128,8 @@ fun PersonalizacionScreenBK(navController: NavController, pedidoViewModelBK: Ped
                                     TipoDeOpcion.SABORSHAKE -> "Selección de Sabor de Shake Oreo:"
                                     else -> "Otros"
                                 },
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp)
+                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                                modifier = Modifier.padding(vertical = 8.dp)
                             )
 
                             Column {
@@ -144,7 +139,11 @@ fun PersonalizacionScreenBK(navController: NavController, pedidoViewModelBK: Ped
                                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
-                                            Text(opcion.nombre, fontWeight = FontWeight.Bold)
+                                            Text(
+                                                text = opcion.nombre,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White
+                                            )
 
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
@@ -166,7 +165,7 @@ fun PersonalizacionScreenBK(navController: NavController, pedidoViewModelBK: Ped
                                                 )
                                                 Text(
                                                     opcion.nombre,
-                                                    style = MaterialTheme.typography.bodyMedium
+                                                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
                                                 )
                                             }
 
@@ -248,7 +247,7 @@ fun PersonalizacionScreenBK(navController: NavController, pedidoViewModelBK: Ped
                         }
                     },
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
                     Text("Continuar con el Pedido", color = Color.White)
                 }

@@ -1,5 +1,6 @@
 package com.example.appeatskfcburguerking.Main.KfcStore
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -58,104 +59,106 @@ fun VerResumenPedidoScreen(navController: NavController, pedidoViewModel: Pedido
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-
                 ) {
                     Text("Confirmar Pedido", color = Color.White)
                 }
             }
         }
     ) { padding ->
-
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 8.dp)
+                .background(Color.White.copy(alpha = 0.95f))
         ) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Productos seleccionadas", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        productos.forEach { producto ->
-                            ResumenItemCard(
-                                nombre = producto.nombre,
-                                precio = producto.precio.toDouble(),
-                                cantidad = producto.cantidad,
-                                imagen = producto.imagen
-                            )
-                        }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 8.dp)
+            ) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Productos seleccionados", style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black))
                     }
                 }
-            }
 
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Opciones seleccionadas", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        if (opciones.isEmpty()) {
-                            Text("No se han seleccionado opciones", style = MaterialTheme.typography.bodySmall)
-                        } else {
-                            opciones.forEach { opcion ->
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            productos.forEach { producto ->
                                 ResumenItemCard(
-                                    nombre = opcion.nombre,
-                                    precio = opcion.precio,
-                                    cantidad = opcion.cantidad,
-                                    tipo = opcion.tipo
+                                    nombre = producto.nombre,
+                                    precio = producto.precio.toDouble(),
+                                    cantidad = producto.cantidad,
+                                    imagen = producto.imagen
                                 )
                             }
                         }
                     }
                 }
-            }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "Total: \$${"%.2f".format(total)}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Opciones seleccionadas", style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black))
+                    }
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            if (opciones.isEmpty()) {
+                                Text("No se han seleccionado opciones", style = MaterialTheme.typography.bodySmall)
+                            } else {
+                                opciones.forEach { opcion ->
+                                    ResumenItemCard(
+                                        nombre = opcion.nombre,
+                                        precio = opcion.precio,
+                                        cantidad = opcion.cantidad,
+                                        tipo = opcion.tipo
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "Total: \$${"%.2f".format(total)}",
+                            style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                        )
+                    }
                 }
             }
-
         }
     }
-
 }
 
 @Composable
@@ -193,15 +196,16 @@ fun ResumenItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(nombre, style = MaterialTheme.typography.bodyMedium)
+                    Text(nombre, style = MaterialTheme.typography.bodyMedium.copy(color = Color.White))
 
                     if (tipo !in listOf(TipoDeOpcion.PRESA, TipoDeOpcion.SABORBEBIDA, TipoDeOpcion.SABORJUGO)) {
-                        Text("Precio: \$${"%.2f".format(precio)}")
+                        Text("Precio: \$${"%.2f".format(precio)}", color = Color.White)
+
                     }
                 }
 
                 if (tipo !in listOf(TipoDeOpcion.PRESA, TipoDeOpcion.SABORBEBIDA, TipoDeOpcion.SABORJUGO)) {
-                    Text(cantidad.toString(), style = MaterialTheme.typography.bodyLarge)
+                    Text(cantidad.toString(), style = MaterialTheme.typography.bodyLarge.copy(color = Color.White))
                 }
             }
         }

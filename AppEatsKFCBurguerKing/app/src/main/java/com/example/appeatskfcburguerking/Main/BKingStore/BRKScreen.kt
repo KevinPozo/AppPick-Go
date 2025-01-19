@@ -256,6 +256,8 @@ val productosLasContundentes = listOf(
 fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK) {
     var selectedCategory by remember { mutableStateOf("Las Contundentes") }
     var searchQuery by remember { mutableStateOf("") }
+    var cantidad by remember { mutableStateOf(0) }
+    var showSnackbar by remember { mutableStateOf(false) }
 
     val categories = listOf("Las Clásicas", "Junior", "Promos Grupales", "Las Vegetales", "Las Contundentes")
     val categoryImages = listOf(
@@ -291,14 +293,14 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
                         Icon(imageVector = Icons.Default.ExitToApp, contentDescription = "Salir", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Blue)
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFFDA7D0B))
             )
         }
         ,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate("cart_screenBK") },
-                containerColor = Color(0xFFD0A50F)
+                containerColor = Color(0xFF092CA9)
             ) {
                 Icon(Default.ShoppingCart, contentDescription = "Carrito")
             }
@@ -308,24 +310,23 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(Color.White.copy(alpha = 0.95f))
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.background_burgerking),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f)
-            )
 
             Column(modifier = Modifier.fillMaxSize()) {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    label = { Text("Buscar productos") },
+                    label = { Text("Buscar productos", color = Color.Black) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    textStyle = TextStyle(color = Color.Black),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Black,
+                        cursorColor = Color.Black
+                    )
                 )
 
                 LazyRow(modifier = Modifier.padding(8.dp)) {
@@ -352,7 +353,7 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .align(Alignment.BottomCenter)
-                                        .background(Color.Gray.copy(alpha = 0.8f))
+                                        .background(Color.Gray.copy(alpha = 0.5f))
                                         .padding(vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -369,6 +370,8 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
 
                 LazyColumn(modifier = Modifier.padding(8.dp)) {
                     itemsIndexed(filteredProductos) { index, producto ->
+                        var cantidadProducto by remember { mutableStateOf(0) }
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -392,7 +395,7 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
                                 Spacer(modifier = Modifier.width(16.dp))
 
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(producto.nombre, fontWeight = FontWeight.Bold)
+                                    Text(producto.nombre, fontWeight = FontWeight.Bold, color = Color.White)
                                     Text("Desde $ ${producto.precio}", color = Color.Gray)
                                     Text(
                                         producto.descripcion,
@@ -401,20 +404,22 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    var cantidad by remember { mutableStateOf(0) }
-
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        IconButton(onClick = {
-                                            if (cantidad > 1) cantidad -= 1
-                                        }) {
+                                        IconButton(
+                                            onClick = {
+                                                if (cantidadProducto > 0) {
+                                                    cantidadProducto -= 1
+                                                }
+                                            }
+                                        ) {
                                             Icon(Default.RemoveCircle, contentDescription = "Disminuir cantidad")
                                         }
 
                                         TextField(
-                                            value = cantidad.toString(),
+                                            value = cantidadProducto.toString(),
                                             onValueChange = { newValue ->
-                                                val newCantidad = newValue.toIntOrNull() ?: cantidad
-                                                if (newCantidad >= 1) cantidad = newCantidad
+                                                val newCantidad = newValue.toIntOrNull() ?: cantidadProducto
+                                                if (newCantidad >= 0) cantidadProducto = newCantidad
                                             },
                                             modifier = Modifier.width(50.dp),
                                             textStyle = TextStyle(textAlign = TextAlign.Center),
@@ -422,7 +427,7 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
                                         )
 
                                         IconButton(onClick = {
-                                            cantidad += 1
+                                            cantidadProducto += 1
                                         }) {
                                             Icon(Default.Add, contentDescription = "Aumentar cantidad")
                                         }
@@ -430,12 +435,21 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Button(onClick = {
-                                        val productoConCantidad = producto.copy(cantidad = cantidad)
-                                        pedidoViewModelBK.agregarProducto(productoConCantidad)
-
-                                        navController.navigate("personalizacion_screenBK")
-                                    }) {
+                                    Button(
+                                        onClick = {
+                                            if (cantidadProducto == 0) {
+                                                showSnackbar = true
+                                            } else {
+                                                val productoConCantidad = producto.copy(cantidad = cantidadProducto)
+                                                pedidoViewModelBK.agregarProducto(productoConCantidad)
+                                                navController.navigate("personalizacion_screenBK")
+                                            }
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color.Red,
+                                            contentColor = Color.White
+                                        )
+                                    ) {
                                         Text("Ordenarlo ¡Ahora!")
                                     }
                                 }
@@ -445,18 +459,17 @@ fun BRKScreen(navController: NavController, pedidoViewModelBK: PedidoViewModelBK
                 }
 
             }
+            if (showSnackbar) {
+                Snackbar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                ) {
+                    Text("Por favor selecciona una cantidad a ordenar", color = Color.Black)
+                }
+            }
         }
     }
 }
 
-@Composable
-fun CartIconButton(navController: NavController) {
-    IconButton(onClick = { navController.navigate("cart_screenBK") }) {
-        Icon(
-            imageVector = Icons.Default.ShoppingCart,
-            contentDescription = "Ir al carrito",
-            tint = Color.White
-        )
-    }
-}
 
