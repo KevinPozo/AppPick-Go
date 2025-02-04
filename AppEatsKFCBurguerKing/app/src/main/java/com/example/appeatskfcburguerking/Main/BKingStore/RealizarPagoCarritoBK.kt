@@ -157,20 +157,22 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
             item {
                 TextField(
                     value = dni,
-                    onValueChange = { dni = it },
+                    onValueChange = { if (it.length <= 10) dni = it },
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    label = { Text("DNI o Cédula",color = Color.White) }
+                    label = { Text("DNI o Cédula", color = Color.White) }
                 )
+
             }
             item {
                 TextField(
                     value = telefono,
-                    onValueChange = { telefono = it },
+                    onValueChange = { if (it.length <= 10) telefono = it },
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
-                    label = { Text("Número de Teléfono",color = Color.White) }
+                    label = { Text("Número de Teléfono", color = Color.White) }
                 )
+
             }
             item {
                 TextField(
@@ -202,27 +204,29 @@ fun RealizarPagoCarritoScreenBK(carritoViewModelBK: CarritoViewModelBK, navContr
                         selected = metodoPago == "Tarjeta",
                         onClick = { metodoPago = "Tarjeta" }
                     )
-                    Text("Tarjeta de Débito", modifier = Modifier.padding(start = 8.dp))
+                    Text("Tarjeta de Débito/Credito", modifier = Modifier.padding(start = 8.dp))
                 }
             }
             if (metodoPago == "Tarjeta") {
                 item {
                     TextField(
                         value = tarjetaNumero,
-                        onValueChange = { tarjetaNumero = it },
+                        onValueChange = { if (it.length <= 19) tarjetaNumero = it },
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                        label = { Text("Número de Tarjeta",color = Color.White) }
+                        label = { Text("Número de Tarjeta", color = Color.White) }
                     )
+
                 }
                 item {
                     TextField(
                         value = cvv,
-                        onValueChange = { cvv = it },
+                        onValueChange = { if (it.length <= 4) cvv = it },
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                        label = { Text("CVV (Últimos 3 dígitos de su tarjeta, parte trasera)", color = Color.White) }
+                        label = { Text("CVV (Últimos 3 o 4 dígitos)", color = Color.White) }
                     )
+
                 }
                 item {
                     TextField(
@@ -382,7 +386,7 @@ fun generarPDF(
         documento.add(table)
 
         val total = carritoViewModel.calcularTotal()
-        documento.add(Paragraph("Total: $$total"))
+        documento.add(Paragraph("Total: $${String.format("%.2f", total)}"))
 
         documento.close()
 

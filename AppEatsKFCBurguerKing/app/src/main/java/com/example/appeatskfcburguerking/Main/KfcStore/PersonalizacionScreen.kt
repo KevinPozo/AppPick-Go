@@ -2,11 +2,15 @@ package com.example.appeatskfcburguerking.Main.KfcStore
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -77,6 +81,7 @@ val opciones = listOf(
 fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoViewModel) {
     val groupedOptions = opciones.groupBy { it.tipo }
     val seleccionPorGrupo = remember { mutableStateMapOf<TipoDeOpcion, Opcion?>() }
+    val expandedGroups = remember { mutableStateMapOf<TipoDeOpcion, Boolean>() }
 
     Scaffold(
         topBar = {
@@ -122,119 +127,139 @@ fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoV
                 ) {
                     groupedOptions.forEach { (tipo, opcionesPorTipo) ->
                         item {
-                            Text(
-                                text = when (tipo) {
-                                    TipoDeOpcion.PRESA -> "Selección de Tipo de Presa:"
-                                    TipoDeOpcion.PAPAS -> "Selección de Papas:"
-                                    TipoDeOpcion.ALITAS -> "Selección de Alitas:"
-                                    TipoDeOpcion.NUGGETS -> "Selección de Nuggets:"
-                                    TipoDeOpcion.POPCORN -> "Selección de PopCorn:"
-                                    TipoDeOpcion.ENSALADA -> "Selección de Ensalada de Col:"
-                                    TipoDeOpcion.BEBIDA -> "Selección de Tamaño Bebida:"
-                                    TipoDeOpcion.SABORBEBIDA -> "Selección de Sabor de Bebida:"
-                                    TipoDeOpcion.JUGO -> "Selección de Tamaño Jugo:"
-                                    TipoDeOpcion.SABORJUGO -> "Selección de Sabor de Jugo:"
-                                    else -> "Otros"
-                                },
-                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                                modifier = Modifier.padding(vertical = 8.dp)
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        expandedGroups[tipo] = !(expandedGroups[tipo] ?: false)
+                                    }
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = when (tipo) {
+                                        TipoDeOpcion.PRESA -> "Selección de Tipo de Presa:"
+                                        TipoDeOpcion.PAPAS -> "Selección de Papas:"
+                                        TipoDeOpcion.ALITAS -> "Selección de Alitas:"
+                                        TipoDeOpcion.NUGGETS -> "Selección de Nuggets:"
+                                        TipoDeOpcion.POPCORN -> "Selección de PopCorn:"
+                                        TipoDeOpcion.ENSALADA -> "Selección de Ensalada de Col:"
+                                        TipoDeOpcion.BEBIDA -> "Selección de Tamaño Bebida:"
+                                        TipoDeOpcion.SABORBEBIDA -> "Selección de Sabor de Bebida:"
+                                        TipoDeOpcion.JUGO -> "Selección de Tamaño Jugo:"
+                                        TipoDeOpcion.SABORJUGO -> "Selección de Sabor de Jugo:"
+                                        else -> "Otros"
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    imageVector = if (expandedGroups[tipo] == true) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = "Expandir o Contraer",
+                                    tint = Color.Black
+                                )
 
-                            Column {
-                                opcionesPorTipo.forEach { opcion ->
-                                    Card(
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                                    ) {
-                                        Column(modifier = Modifier.padding(16.dp)) {
-                                            Text(
-                                                text = opcion.nombre,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White
+                            }
+                        }
+
+                        if (expandedGroups[tipo] == true) {
+                            items(opcionesPorTipo) { opcion ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text(
+                                            text = opcion.nombre,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Start,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        ) {
+                                            val isSelected = seleccionPorGrupo[tipo] == opcion
+                                            RadioButton(
+                                                selected = isSelected,
+                                                onClick = {
+                                                    if (!isSelected) {
+                                                        seleccionPorGrupo[tipo] = opcion
+                                                        pedidoViewModel.agregarOpcion(opcion)
+                                                    } else {
+                                                        seleccionPorGrupo[tipo] = null
+                                                        pedidoViewModel.eliminarOpcion(opcion)
+                                                    }
+                                                }
                                             )
+                                            Text(
+                                                opcion.nombre,
+                                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
+                                            )
+                                        }
+
+                                        if (tipo !in listOf(TipoDeOpcion.PRESA)) {
+                                            var cantidad by remember { mutableStateOf(opcion.cantidad) }
 
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Start,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                 modifier = Modifier.padding(vertical = 8.dp)
                                             ) {
-                                                val isSelected = seleccionPorGrupo[tipo] == opcion
-                                                RadioButton(
-                                                    selected = isSelected,
+                                                IconButton(
                                                     onClick = {
-                                                        if (!isSelected) {
-                                                            seleccionPorGrupo[tipo] = opcion
-                                                            pedidoViewModel.agregarOpcion(opcion)
-                                                        } else {
-                                                            seleccionPorGrupo[tipo] = null
-                                                            pedidoViewModel.eliminarOpcion(opcion)
-                                                        }
-                                                    }
-                                                )
-                                                Text(
-                                                    opcion.nombre,
-                                                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
-                                                )
-                                            }
-
-                                            if (tipo !in listOf(TipoDeOpcion.PRESA)) {
-                                                var cantidad by remember { mutableStateOf(opcion.cantidad) }
-
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                    modifier = Modifier.padding(vertical = 8.dp)
-                                                ) {
-                                                    IconButton(
-                                                        onClick = {
-                                                            if (cantidad > 1) {
-                                                                cantidad -= 1
-                                                                pedidoViewModel.actualizarCantidadOpcion(
-                                                                    opcion,
-                                                                    cantidad
-                                                                )
+                                                        if (cantidad > 0) {
+                                                            cantidad -= 1
+                                                            if (cantidad == 0) {
+                                                                seleccionPorGrupo[tipo] = null
+                                                                pedidoViewModel.eliminarOpcion(opcion)
+                                                            } else {
+                                                                pedidoViewModel.actualizarCantidadOpcion(opcion, cantidad)
                                                             }
                                                         }
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Default.RemoveCircle,
-                                                            contentDescription = "Disminuir cantidad"
-                                                        )
                                                     }
-
-                                                    Text(
-                                                        text = cantidad.toString(),
-                                                        style = MaterialTheme.typography.bodyMedium
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.RemoveCircle,
+                                                        contentDescription = "Disminuir cantidad"
                                                     )
-
-                                                    IconButton(
-                                                        onClick = {
-                                                            cantidad += 1
-                                                            pedidoViewModel.actualizarCantidadOpcion(
-                                                                opcion,
-                                                                cantidad
-                                                            )
-                                                        }
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Default.Add,
-                                                            contentDescription = "Incrementar cantidad"
-                                                        )
-                                                    }
                                                 }
-                                            }
-                                            if (tipo !in listOf(
-                                                    TipoDeOpcion.PRESA,
-                                                    TipoDeOpcion.SABORBEBIDA,
-                                                    TipoDeOpcion.SABORJUGO
-                                                )
-                                            ) {
-                                                Spacer(modifier = Modifier.height(16.dp))
+
                                                 Text(
-                                                    "Precio: \$${opcion.precio}",
+                                                    text = cantidad.toString(),
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
+
+                                                IconButton(
+                                                    onClick = {
+                                                        cantidad += 1
+                                                        pedidoViewModel.actualizarCantidadOpcion(
+                                                            opcion,
+                                                            cantidad
+                                                        )
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.Add,
+                                                        contentDescription = "Incrementar cantidad"
+                                                    )
+                                                }
                                             }
+                                        }
+                                        if (tipo !in listOf(
+                                                TipoDeOpcion.PRESA,
+                                                TipoDeOpcion.SABORBEBIDA,
+                                                TipoDeOpcion.SABORJUGO
+                                            )
+                                        ) {
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            Text(
+                                                "Precio: \$${opcion.precio}",
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
                                         }
                                     }
                                 }
@@ -262,31 +287,3 @@ fun PersonalizacionScreen(navController: NavController, pedidoViewModel: PedidoV
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
